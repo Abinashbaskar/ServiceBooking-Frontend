@@ -1,28 +1,16 @@
-import React, { useState } from 'react';
-import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"; // make sure you have lucide-react installed
+import React, { useState } from "react";
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Api from "../../src/Api"; // Axios instance with baseURL
 
-const Login = () => {
-  const [currentView, setCurrentView] = useState('home'); // 'home', 'login', 'signup', 'dashboard', 'booking'
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+const Login = ({ setCurrentUser }) => {
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [authErrors, setAuthErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Auth form states
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', confirmPassword: '', phone: ''
-  });
-  const [authErrors, setAuthErrors] = useState({});
-  const [users, setUsers] = useState([
-    { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@example.com', password: 'password123', phone: '+1234567890' }
-  ]);
-
-  const handleLogin = () => {
-    setAuthErrors({}); 
+  const handleLogin = async () => {
+    setAuthErrors({});
     const { email, password } = loginForm;
 
     if (!email) {
@@ -34,13 +22,23 @@ const Login = () => {
       return;
     }
 
-    const user = users.find(u => u.email === email && u.password === password);
-    if (user) {
-      setIsAuthenticated(true);
-      setCurrentUser(user);
-      setCurrentView("dashboard");
-    } else {
-      setAuthErrors({ general: "Invalid email or password" });
+    try {
+      const res = await Api.post("/api/users/login", { email, password });
+      console.log(res, "login response");
+
+      // Save token and user
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // ✅ Update App state with user
+      setCurrentUser(res.data.user);
+
+      // ✅ Navigate to dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      setAuthErrors({
+        general: error.response?.data?.message || "Login failed"
+      });
     }
   };
 
@@ -63,6 +61,7 @@ const Login = () => {
           )}
 
           <div className="space-y-6">
+            {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <div className="relative">
@@ -70,14 +69,17 @@ const Login = () => {
                 <input
                   type="email"
                   value={loginForm.email}
-                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${authErrors.email ? 'border-red-500' : 'border-gray-300'}`}
+                  onChange={e => setLoginForm({ ...loginForm, email: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    authErrors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter your email"
                 />
               </div>
               {authErrors.email && <p className="text-red-500 text-sm mt-1">{authErrors.email}</p>}
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div className="relative">
@@ -85,8 +87,10 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${authErrors.password ? 'border-red-500' : 'border-gray-300'}`}
+                  onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    authErrors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -109,13 +113,13 @@ const Login = () => {
 
             <div className="text-center">
               <p className="text-gray-600">
-                Don't have an account?{' '}
-                  <button
-      onClick={() => navigate("/sign")}
-      className="text-purple-600 hover:text-purple-800 font-semibold"
-    >
-      Sign up here
-    </button>
+                Don't have an account?{" "}
+                <button
+                  onClick={() => navigate("/signup")}
+                  className="text-purple-600 hover:text-purple-800 font-semibold"
+                >
+                  Sign up here
+                </button>
               </p>
             </div>
           </div>

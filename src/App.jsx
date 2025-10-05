@@ -1,34 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Auth/Login";
 import SignUp from "./Auth/SignUp";
+import Dashboard from "./Categories/Dashboard";
 
 const App = () => {
-  const [users, setUsers] = useState([
-    { 
-      id: 1, 
-      firstName: "John", 
-      lastName: "Doe", 
-      email: "john@example.com", 
-      password: "password123", 
-      phone: "+1234567890" 
-    }
-  ]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  const [users, setUsers] = useState([]);
 
   return (
     <Routes>
-      {/* Redirect root to login */}
+      {/* Default redirect to login */}
       <Route path="/" element={<Navigate to="/login" />} />
 
-      <Route 
-        path="/login" 
-        element={<Login users={users} setCurrentUser={setCurrentUser} />} 
+      {/* Login page */}
+      <Route
+        path="/login"
+        element={
+          currentUser ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <Login setCurrentUser={setCurrentUser} />
+          )
+        }
       />
 
-      <Route 
-        path="/sign" 
-        element={<SignUp users={users} setUsers={setUsers} />} 
+      {/* Signup page */}
+      <Route path="/signup" element={<SignUp users={users} setUsers={setUsers} />} />
+
+      {/* Dashboard page (protected route) */}
+      <Route
+        path="/dashboard"
+        element={
+          currentUser ? (
+            <Dashboard currentUser={currentUser} setCurrentUser={setCurrentUser} />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
     </Routes>
   );
