@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.png'
 import HoverCards from './HoverCards';
+import ServicesCards from './ServicesCards';
 
 export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -238,7 +239,7 @@ export default function Dashboard() {
             // onClick={handleBecomeProvider}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
-            <Briefcase size={24} />
+         <Briefcase size={24} variant="Bold" />
             Become a Provider
           </button>
         </div>
@@ -248,6 +249,9 @@ export default function Dashboard() {
     Popular Service Categories
   </h2>
   <HoverCards />
+</div>
+<div>
+  <ServicesCards/>
 </div>
 
     </div>
