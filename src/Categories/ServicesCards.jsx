@@ -172,7 +172,7 @@ const ServicesCards = () => {
         <ServiceDetailsModels
           service={selectedService}
           isOpen={isModalOpen}
-          onClose={handleCloseModal}
+          onCloseServicemodal={handleCloseModal}
         />
       )}
     </div>

@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.png'
 import HoverCards from './HoverCards';
 import ServicesCards from './ServicesCards';
+import ContactUs from './ContactUs';
+import Footer from './Footer';
 
 export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -252,6 +254,12 @@ export default function Dashboard() {
 </div>
 <div>
   <ServicesCards/>
+</div>
+<div>
+  <ContactUs />
+</div>
+<div>
+  <Footer/>
 </div>
 
     </div>
